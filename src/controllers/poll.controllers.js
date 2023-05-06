@@ -13,11 +13,20 @@ export async function newPoll(req, res) {
             //const formattedDate = isoString.toISOString().slice(0, 16).replace('T', ' ');
             expireAt = formattedDate;
         }
-
         await db.collection("Polls").insertOne({ title, expireAt });
         res.status(201).send({ title, expireAt });
     }
     catch (error) {
         console.log(error.message)
+    }
+}
+
+export async function getPolls(req, res){
+    try{
+        const allPolls = await db.collection("Polls").find().toArray();
+        res.send(allPolls);
+    }
+    catch (error){
+        console.log(error.message);
     }
 }
