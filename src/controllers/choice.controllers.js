@@ -27,3 +27,19 @@ export async function newChoice(req, res) {
         console.log(error.message);
     }
 }
+
+export async function allChoicesPoll(req, res) {
+    //middlewares usando schemas em routes filtra a entrada
+    const pollId = req.params.id;
+    try {
+        console.log(pollId);
+        const allChoicesPoll = await db.collection("Choices").find({ pollId }).toArray();
+        console.log(allChoicesPoll);
+        if (allChoicesPoll.length === 0) return res.status(404).send("Essa enquete não existe ou não possui opções");
+
+        res.send(allChoicesPoll);
+    }
+    catch (error) {
+        console.log(error.message);
+    }
+}
