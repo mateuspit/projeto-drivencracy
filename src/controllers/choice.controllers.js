@@ -13,9 +13,9 @@ export async function newChoice(req, res) {
         if (!poll) return res.status(404).send("Essa enquete não existe!")
 
         const choice = await db.collection("Choices").findOne({ title, pollId });
-        console.log(title);
-        console.log(pollId);
-        console.log(choice);
+        //console.log(title);
+        //console.log(pollId);
+        //console.log(choice);
         if (choice) return res.status(409).send("Essa opção já existe!")
 
         const timestampPoll = new Date(poll.expireAt).getTime();

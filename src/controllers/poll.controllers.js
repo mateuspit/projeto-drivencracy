@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { db } from "../database/database.connection.js";
 
 export async function newPoll(req, res) {
@@ -25,6 +26,20 @@ export async function getPolls(req, res) {
     try {
         const allPolls = await db.collection("Polls").find().toArray();
         res.send(allPolls);
+    }
+    catch (error) {
+        console.log(error.message);
+    }
+}
+
+export async function getResult(req, res) {
+    const _id = req.params.id;
+    try {
+        const poll = await db.collection("Polls").findOne({ _id: new ObjectId(_id) });
+
+        if (!poll) return res.status(404).send("Enquete inexistente");
+
+        return res.send(poll);
     }
     catch (error) {
         console.log(error.message);
