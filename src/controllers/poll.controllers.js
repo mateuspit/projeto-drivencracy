@@ -33,13 +33,25 @@ export async function getPolls(req, res) {
 }
 
 export async function getResult(req, res) {
-    const _id = req.params.id;
+    const pollId = req.params.id;
     try {
-        const poll = await db.collection("Polls").findOne({ _id: new ObjectId(_id) });
+        const winnerChoice = await db.collection("Choices").findOne({ pollId }, { sort: { votes: -1 } });
 
-        if (!poll) return res.status(404).send("Enquete inexistente");
+        if (!winnerChoice) return res.status(404).send("Enquete inexistente");
 
-        return res.send(poll);
+        const winnerPoll = await db.collection("Polls").findOne({ _id: new ObjectId(pollId) });
+
+        const dataPoll = {
+            _id: winnerPoll._id,
+            title: winnerPoll.title,
+            expireAt: winnerPoll.expireAt,
+            result: {
+                title: winnerChoice.title,
+                votes: winnerChoice.votes
+            }
+        }
+
+        return res.send(dataPoll);
     }
     catch (error) {
         console.log(error.message);

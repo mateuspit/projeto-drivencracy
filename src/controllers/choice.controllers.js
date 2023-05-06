@@ -24,16 +24,16 @@ export async function newChoice(req, res) {
         const timestampActual = new Date().getTime();
         if (timestampActual > timestampPoll) return res.status(403).send("Essa enquete já foi finalizada!");
 
-        await db.collection("Choices").insertOne({ title, pollId });
-        await db.collection("Polls")
-            .updateOne({ _id: new ObjectId(pollId) }, {
-                $set: {
-                    result:{
-                        title: title,
-                        votes: 0
-                    }
-                }
-            })
+        await db.collection("Choices").insertOne({ title, pollId, votes: 0 });
+        //await db.collection("Polls")
+        //    .updateOne({ _id: new ObjectId(pollId) },
+        //        {
+        //            result: {
+        //                title: title,
+        //                votes: 0
+        //            }
+        //        }
+        //    );
         res.status(201).send({ title, pollId });
     }
     catch (error) {
@@ -61,6 +61,7 @@ export async function vote(req, res) {
     //middlewares usando schemas em routes filtra a entrada
     const _id = req.params.id;
     try {
+        if (_id.length !== 24) return res.status(404).send("Opção inexistente!");
         const choice = await db.collection("Choices").findOne({ _id: new ObjectId(_id) });
         if (!choice) return res.status(404).send("Opção inexistente!");
 
@@ -81,12 +82,14 @@ export async function vote(req, res) {
 
         const token = uuid();
 
-        await db.collection("Choices").updateOne({ _id: new ObjectId(_id) }, { $set: { [`Time_${token}`]: formattedDate } });
-        await db.collection("Polls")
-            .updateOne({ _id: new ObjectId(choice.pollId) }, {
-                $set: { "result.title": choice.title },
-                $inc: { "result.votes": 1 }
-            }, { upsert: true });
+        await db.collection("Choices").updateOne(
+            { _id: new ObjectId(_id) },
+            { $set: { [`Time_${token}`]: formattedDate }, $inc: { votes: 1 } });
+        //await db.collection("Polls")
+        //    .updateOne({ _id: new ObjectId(choice.pollId) }, {
+        //        $set: { "result.title": choice.title },
+        //        $inc: { "result.votes": 1 }
+        //    }, { upsert: true });
         res.status(201).send("Voto computado!");
     }
     catch (error) {
