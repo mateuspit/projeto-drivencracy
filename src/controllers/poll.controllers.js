@@ -21,12 +21,12 @@ export async function newPoll(req, res) {
     }
 }
 
-export async function getPolls(req, res){
-    try{
+export async function getPolls(req, res) {
+    try {
         const allPolls = await db.collection("Polls").find().toArray();
         res.send(allPolls);
     }
-    catch (error){
+    catch (error) {
         console.log(error.message);
     }
 }
